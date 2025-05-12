@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<SplitPane dividerPositions="0.35"
+           xmlns="http://javafx.com/javafx/8"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Project.Controllers.mainController"
+           stylesheets="@style.css">
+
+    <items>
+        <!-- Sol Panel (Kontrol Paneli) -->
+        <VBox spacing="10" style="-fx-background-color: #f4f4f4; -fx-padding: 10;">
+            <Label text="Yeni Çağrı" />
+            <TextField fx:id="callerNameField" promptText="Çağrı Sahibi" />
+            <ComboBox fx:id="priorityBox">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="HIGH" />
+                        <String fx:value="MEDIUM" />
+                        <String fx:value="LOW" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <TextField fx:id="durationField" promptText="Süre (sn)" />
+            <Button fx:id="addCallButton" text="Çağrı Ekle" />
+
+            <Separator />
+
+            <Label text="Yeni Operatör" />
+            <TextField fx:id="operatorNameField" promptText="Operatör Adı" />
+            <Button fx:id="addOperatorButton" text="Operatör Ekle" />
+
+            <Separator />
+
+            <Button fx:id="startSimulationButton" text="Simülasyonu Başlat" />
+
+            <Label text="📞 Bekleyen Çağrılar" />
+            <ListView fx:id="callQueueView" />
+
+            <Label text="👷 Operatörler" />
+            <ListView fx:id="operatorListView" />
+        </VBox>
+
+        <!-- Sağ Panel (Canlı Simülasyon Alanı) -->
+        <VBox fx:id="visualArea" spacing="10" style="-fx-padding: 10;">
+            <Label text="🎬 Canlı Görüntü Alanı" />
+        </VBox>
+    </items>
+</SplitPane>
