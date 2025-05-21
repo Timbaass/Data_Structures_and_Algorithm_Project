@@ -3,11 +3,13 @@ package Project.Controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.application.Platform;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import Project.Models.Call;
 import Project.Models.Operator;
 import Project.Enums.Priority;
 import java.util.*;
+import Project.Scripts.myPriorityQueue;
 
 public class mainController {
 
@@ -23,15 +25,17 @@ public class mainController {
     @FXML private ListView<Call> callQueueView;
     @FXML private ListView<Operator> operatorListView;
 
-    @FXML private VBox visualArea;
+    @FXML private GridPane visualGrid;
 
-    private Queue<Call> callQueue = new LinkedList<>();
+    private myPriorityQueue callQueue = new myPriorityQueue();
     private List<Operator> operatorList = new ArrayList<>();
+
+    private static final int MAX_CALL_SLOTS = 10;
+    private int operatorColumnIndex = 0;
+    private Map<Operator, List<Label>> operatorCells = new HashMap<>();
 
     @FXML
     public void initialize() {
-        priorityBox.getItems().addAll("HIGH", "MEDIUM", "LOW");
-
         addCallButton.setOnAction(e -> addCall());
         addOperatorButton.setOnAction(e -> addOperator());
         startSimulationButton.setOnAction(e -> startSimulation());
@@ -51,7 +55,7 @@ public class mainController {
             int duration = Integer.parseInt(durationStr);
             Priority priority = Priority.valueOf(priorityStr);
             Call call = new Call(name, priority, duration);
-            callQueue.add(call);
+            callQueue.enqueue(call);
             callQueueView.getItems().add(call);
 
             callerNameField.clear();
@@ -72,6 +76,22 @@ public class mainController {
         operatorList.add(operator);
         operatorListView.getItems().add(operator);
         operatorNameField.clear();
+
+        // GridPane'e yeni sütun ekle
+        int col = operatorColumnIndex++;
+        Label header = new Label("👷 " + name);
+        header.setStyle("-fx-font-weight: bold;");
+        visualGrid.add(header, col, 0);
+
+        List<Label> cells = new ArrayList<>();
+        for (int row = 1; row <= MAX_CALL_SLOTS; row++) {
+            Label cell = new Label();
+            cell.setMinSize(100, 30);
+            cell.setStyle("-fx-border-color: gray; -fx-background-color: white;");
+            visualGrid.add(cell, col, row);
+            cells.add(cell);
+        }
+        operatorCells.put(operator, cells);
     }
 
     private void startSimulation() {
@@ -79,15 +99,13 @@ public class mainController {
             while (!callQueue.isEmpty()) {
                 for (Operator operator : operatorList) {
                     if (!operator.isBusy() && !callQueue.isEmpty()) {
-                        Call call = callQueue.poll();
+                        Call call = callQueue.dequeue();
                         operator.assignCall(call);
 
                         Platform.runLater(() -> {
                             callQueueView.getItems().remove(call);
                             operatorListView.refresh();
-
-                            Label label = new Label(operator.getName() + " → " + call.toString());
-                            visualArea.getChildren().add(label);
+                            updateOperatorCells(operator);
                         });
 
                         try {
@@ -97,11 +115,27 @@ public class mainController {
                         }
 
                         operator.finishCall();
-                        Platform.runLater(() -> operatorListView.refresh());
+                        Platform.runLater(() -> {
+                            updateOperatorCells(operator);
+                            operatorListView.refresh();
+                        });
                     }
                 }
             }
         }).start();
+    }
+
+    private void updateOperatorCells(Operator operator) {
+        List<Label> cells = operatorCells.get(operator);
+        if (cells == null) return;
+
+        if (operator.isBusy()) {
+            cells.get(0).setText("📞 " + operator.getCurrentCall().getCallerName());
+            cells.get(0).setStyle("-fx-background-color: tomato; -fx-border-color: black;");
+        } else {
+            cells.get(0).setText("");
+            cells.get(0).setStyle("-fx-background-color: white; -fx-border-color: gray;");
+        }
     }
 
     private void showAlert(String title, String content) {

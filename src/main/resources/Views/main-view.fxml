@@ -46,8 +46,10 @@
         </VBox>
 
         <!-- Sağ Panel (Canlı Simülasyon Alanı) -->
-        <VBox fx:id="visualArea" spacing="10" style="-fx-padding: 10;">
+        <VBox spacing="10" style="-fx-padding: 10;">
             <Label text="🎬 Canlı Görüntü Alanı" />
+            <GridPane fx:id="visualGrid" hgap="10" vgap="5" />
         </VBox>
+
     </items>
 </SplitPane>
