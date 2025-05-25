@@ -37,6 +37,7 @@
             <Separator />
 
             <Button fx:id="startSimulationButton" text="Simülasyonu Başlat" />
+            <Button fx:id="stopSimulationButton" text="Simülasyonu Durdur" disable="true" />
 
             <Label text="📞 Bekleyen Çağrılar" />
             <ListView fx:id="callQueueView" />
