@@ -44,6 +44,8 @@
 
             <Label text="👷 Operatörler" />
             <ListView fx:id="operatorListView" />
+            <Label text="❌ Geçmiş Çağrılar" />
+            <ListView fx:id="CallHistoryListView" />
         </VBox>
 
         <!-- Sağ Panel (Canlı Simülasyon Alanı) -->

@@ -2,6 +2,7 @@ package Project.Controllers;
 
 import Project.Scripts.myHashMap;
 import Project.Scripts.myAvlTree;
+import Project.Scripts.myStack;
 import Project.Scripts.myPriorityQueue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -24,6 +25,7 @@ public class mainController {
     @FXML private Button stopSimulationButton;
     @FXML private ListView<Call> callQueueView;
     @FXML private ListView<Operator> operatorListView;
+    @FXML private ListView<Call> CallHistoryListView;
     @FXML private GridPane visualGrid;
 
     private myPriorityQueue callQueue = new myPriorityQueue();
@@ -32,10 +34,11 @@ public class mainController {
     private myHashMap<Operator, Integer> operatorWorkloads = new myHashMap<>();
     private myHashMap<Operator, List<Label>> operatorCells = new myHashMap<>();
     private myHashMap<Operator, List<Call>> operatorCallQueue = new myHashMap<>();
+    private myStack myStack = new myStack();
     private volatile boolean isSimulationRunning = false;
     private static final int MAX_CALL_SLOTS = 10;
     private int operatorColumnIndex = 0;
-    private static final long ASSIGNMENT_DELAY = 2000; // 2 seconds delay between assignments
+    private static final long ASSIGNMENT_DELAY = 200; // 0.2 seconds delay between assignments
 
     @FXML
     public void initialize() {
@@ -47,7 +50,7 @@ public class mainController {
     }
 
     private void prePopulateData() {
-        String[] operatorNames = {"Operator1", "Operator2", "Operator3"};
+        String[] operatorNames = {"Operator1", "Operator2", "Operator3","Operator4"};
         for (String name : operatorNames) {
             Operator operator = new Operator(name);
             operatorList.add(operator);
@@ -80,13 +83,8 @@ public class mainController {
             Priority priority = priorities[random.nextInt(priorities.length)];
             int duration = random.nextInt(10) + 1;
             Call call = new Call(callerName, priority, duration);
-            Operator leastLoadedOperator = findLeastLoadedOperator();
-            if (leastLoadedOperator != null) {
-                assignCallToOperator(leastLoadedOperator, call);
-            } else {
-                callQueue.enqueue(call);
-                Platform.runLater(() -> callQueueView.getItems().add(call));
-            }
+            callQueue.enqueue(call);
+            Platform.runLater(() -> callQueueView.getItems().add(call));
         }
     }
 
@@ -262,9 +260,13 @@ public class mainController {
                 }
 
                 if (!isSimulationRunning) break;
-
+                myStack.addstack(currentCall);
                 operator.finishCall();
-                queue.remove(0);
+                myStack.printstack();
+
+                if (!queue.isEmpty()) {
+                    queue.remove(0);
+                }
                 Integer currentWorkload = operatorWorkloads.get(operator);
                 if (currentWorkload != null && currentWorkload > 0) {
                     operatorWorkloads.put(operator, currentWorkload - 1);
@@ -274,6 +276,8 @@ public class mainController {
                 Platform.runLater(() -> {
                     operatorListView.refresh();
                     updateOperatorCells(operator);
+                    CallHistoryListView.getItems().add(0,currentCall);
+                    CallHistoryListView.refresh();
                 });
             }
         }).start();

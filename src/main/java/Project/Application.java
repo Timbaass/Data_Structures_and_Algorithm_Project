@@ -15,7 +15,7 @@ public class Application extends javafx.application.Application {
         Parent mainWindow = fxmlLoader.load();
 
         scene = new Scene(mainWindow, 900, 600);
-        stage.setTitle("Hello!");
+        stage.setTitle("Çağrı Merkezi İşlem Kuyruğu ve Operatör Atama Simülasyonu");
         stage.setScene(scene);
         stage.show();
     }
